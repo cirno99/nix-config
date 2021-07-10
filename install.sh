@@ -1,19 +1,20 @@
 #! /usr/bin/env bash
-
+#export http_proxy=http://192.168.122.1:8889
+#export https_proxy=http://192.168.122.1:8889
 # Shows the output of every command
 set +x
 
 # Pin Nixpkgs to NixOS unstable on Jul 3rd of 2021
 export PINNED_NIX_PKGS="https://github.com/NixOS/nixpkgs/archive/d8079260a30.tar.gz"
 # Switch to the unstable channel
-sudo nix-channel --add https://nixos.org/channels/nixos-unstable nixos
+sudo nix-channel --add https://mirrors.tuna.tsinghua.cn/nix-channels/nixos-unstable nixos
 
 # Nix configuration
 sudo cp system/configuration.nix /etc/nixos/
 sudo cp -r system/fonts/ /etc/nixos/
 sudo cp -r system/machine/ /etc/nixos/
 sudo cp -r system/wm/ /etc/nixos/
-sudo nixos-rebuild -I nixpkgs=$PINNED_NIX_PKGS switch --upgrade
+sudo proxychains4 nixos-rebuild -I nixpkgs=$PINNED_NIX_PKGS switch --upgrade
 
 # Manual steps
 mkdir -p $HOME/.config/polybar/logs
@@ -25,7 +26,7 @@ touch $HOME/.cache/fzf-hoogle/cache.json
 # Home manager
 mkdir -p $HOME/.config/nixpkgs/
 cp -r home/* $HOME/.config/nixpkgs/
-nix-channel --add https://github.com/rycee/home-manager/archive/master.tar.gz home-manager
+proxychains4 nix-channel --add https://github.com/rycee/home-manager/archive/master.tar.gz home-manager
 nix-channel --update
 export NIX_PATH=$HOME/.nix-defexpr/channels${NIX_PATH:+:}$NIX_PATH
 nix-shell '<home-manager>' -A install
